@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+######################
+.Rproj
+
+przykladowe_dane_seed_5_centers_3_features_2.txt
+
