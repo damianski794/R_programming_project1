@@ -1,0 +1,200 @@
+---
+title: "Analiza skupień"
+author: "Damian Wysokiński"
+date: "8 11 2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+# Opis zadania
+Celem projektu bylo zaimplementowanie i przetestowanie algorytmu spektralnego analizy danych.
+
+Algorytm sklada sie z 4 glownych elementow:
+
+1. znalezienie M najbliższych sasiadów wszystkich punktow
+2. stworzenie grafu sasiedztwa
+3. wyznaczenie odpowiednich *k* wektorow wlasnych jego laplasjanu
+4. zastosowanie algorytmu *k* srednich w nowej przestrzeni danych
+
+# Testy
+### Testy danych 2-wymiarowych
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library("plot3D")
+library('clusteringdatasets')
+library(igraph)
+source('spectral.R')
+```
+
+Test dla nastepujacych danych:
+
+- liczba próbek 200
+- liczba klastrów 7
+
+``` {r echo=FALSE}
+set.seed(5) 
+
+n_centers = 7
+n_features = 2
+blobs <- make_blobs(n_samples = 200, n_features = n_features, centers = n_centers, cluster_std = 1)
+
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = blobs$labels, cex=1, pch=16) #2D plot
+```
+
+Stworzenie grafu i uspójnienie go (dodane krawedzie zaznaczone czerwonymi liniami).
+
+```{r echo = FALSE}
+set.seed(5) 
+
+n_centers = 7
+n_features = 2
+blobs <- make_blobs(n_samples = 200, n_features = n_features, centers = n_centers, cluster_std = 1)
+
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = blobs$labels, cex=1, pch=16) #2D plot
+
+spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 3, print_graph = TRUE)
+```
+
+Wyznaczenie klastrów z danych
+
+```{r echo=FALSE}
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = spectral_labels, cex=1, pch=16)
+```
+
+Ocena jakosci klastryzacji z wykorzystaniem FM:
+
+```{r echo=FALSE}
+dendextend::FM_index(blobs$labels, spectral_labels)
+```
+
+
+Test dla nastepujacych danych:
+
+- liczba próbek 100
+- liczba klastrów 4
+
+```{r echo=FALSE}
+set.seed(5) 
+
+n_centers = 4
+n_features = 2
+blobs <- make_blobs(n_samples = 100, n_features = n_features, centers = n_centers, cluster_std = 1)
+
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = blobs$labels, cex=1, pch=16) #2D plot
+
+
+```
+
+Stworzenie grafu i uspójnienie go.
+
+```{r echo=FALSE}
+set.seed(5) 
+
+n_centers = 4
+n_features = 2
+blobs <- make_blobs(n_samples = 100, n_features = n_features, centers = n_centers, cluster_std = 1)
+
+
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = blobs$labels, cex=1, pch=16) #2D plot
+
+spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 3, print_graph = TRUE)
+```
+
+Wyznaczenie nowych klastrów:
+
+```{r echo=FALSE}
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = spectral_labels, cex=1, pch=16)
+```
+
+Jak widac na powyższym rysunku, nie zostal dokladnie odwzorowany poczatkowy podzial na klastry. Duzy wplyw na podzial danych ma losowy wybór nowych krawedzi przy uspójnianiu grafu. Bledy pojawiaja sie w miejscach, gdzie byly dodane nowe krawedzie.
+
+Ocena jakosci klastryzacji z wykorzystaniem FM:
+
+```{r echo=FALSE}
+dendextend::FM_index(blobs$labels, spectral_labels)
+```
+
+### Testy danych 3-wymiarowych
+
+Test dla nastepujacych danych:
+
+- 200 próbek
+- 10 klastrów
+
+```{r echo=FALSE}
+set.seed(5) 
+
+n_centers = 10
+n_features = 3
+blobs <- make_blobs(n_samples = 200, n_features = n_features, centers = n_centers, cluster_std = 1)
+if (n_features == 3){
+  scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = blobs$labels, col=rainbow(n_centers))#3D
+  spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 3)
+  
+  #scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = spectral_labels, col=rainbow(n_centers))#3D
+}
+```
+
+```{r echo=FALSE}
+set.seed(5) 
+
+n_centers = 10
+n_features = 3
+blobs <- make_blobs(n_samples = 200, n_features = n_features, centers = n_centers, cluster_std = 1)
+if (n_features == 3){
+  spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 3)
+  
+  scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = spectral_labels, col=rainbow(n_centers))#3D
+}
+```
+
+Ocena jakosci klastryzacji z wykorzystaniem FM:
+
+```{r echo=FALSE}
+dendextend::FM_index(blobs$labels, spectral_labels)
+```
+
+Testy dla nastepujacych danych:
+
+- 1000 próbek
+- 3 klastry
+- 10 najbliższych sasiadów
+
+``` {r echo=FALSE}
+source('spectral.R')
+set.seed(5) 
+
+n_centers = 3
+n_features = 3
+blobs <- make_blobs(n_samples = 1000, n_features = n_features, centers = n_centers, cluster_std = 1)
+if (n_features == 3){
+  scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = blobs$labels, col=rainbow(n_centers))#3D
+  #spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 10)
+  
+  #scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = spectral_labels, col=rainbow(n_centers))#3D
+}
+```
+
+Wyznaczone klastry:
+
+``` {r echo=FALSE}
+source('spectral.R')
+set.seed(5) 
+
+n_centers = 3
+n_features = 3
+blobs <- make_blobs(n_samples = 1000, n_features = n_features, centers = n_centers, cluster_std = 1)
+if (n_features == 3){
+  #scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = blobs$labels, col=rainbow(n_centers))#3D
+  spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 10)
+  
+  scatter3D(x = blobs$samples[,1], y = blobs$samples[,2], z = blobs$samples[,3], colvar = spectral_labels, col=rainbow(n_centers))#3D
+}
+```
+
+Ocena jakosci klastryzacji z wykorzystaniem FM:
+
+```{r echo=FALSE}
+dendextend::FM_index(blobs$labels, spectral_labels)
+```
+
