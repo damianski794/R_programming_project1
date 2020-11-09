@@ -1,21 +1,21 @@
 ---
 title: "Analiza skupień"
 author: "Damian Wysokiński"
-date: "8 11 2020"
+date: "9/11/2020"
 output:
   pdf_document: default
   html_document:
     df_print: paged
 ---
 # Opis zadania
-Celem projektu bylo zaimplementowanie i przetestowanie algorytmu spektralnego analizy danych.
+Celem projektu było zaimplementowanie i przetestowanie algorytmu spektralnego analizy danych.
 
-Algorytm sklada sie z 4 glownych elementow:
+Algorytm składa się z 4 głównych elementów:
 
-1. znalezienie M najbliższych sasiadów wszystkich punktow
-2. stworzenie grafu sasiedztwa
-3. wyznaczenie odpowiednich *k* wektorow wlasnych jego laplasjanu
-4. zastosowanie algorytmu *k* srednich w nowej przestrzeni danych
+1. znalezienie M najbliższych sąsiadów wszystkich punktów
+2. stworzenie grafu sąsiedztwa
+3. wyznaczenie odpowiednich *k* wektorów własnych jego laplasjanu
+4. zastosowanie algorytmu *k* średnich w nowej przestrzeni danych
 
 # Testy
 ### Testy danych 2-wymiarowych
@@ -26,10 +26,11 @@ library(igraph)
 source('spectral.R')
 ```
 
-Test dla nastepujacych danych:
+Test dla następujących danych:
 
 - liczba próbek 200
 - liczba klastrów 7
+- liczba najbliższych sąsiadów 3
 
 ``` {r echo=FALSE}
 set.seed(5) 
@@ -41,7 +42,7 @@ blobs <- make_blobs(n_samples = 200, n_features = n_features, centers = n_center
 plot(x = blobs$samples[,1], y = blobs$samples[,2], col = blobs$labels, cex=1, pch=16) #2D plot
 ```
 
-Stworzenie grafu i uspójnienie go (dodane krawedzie zaznaczone czerwonymi liniami).
+Stworzenie grafu i uspójnienie go (dodane krawędzie zaznaczone czerwonymi liniami).
 
 ```{r echo = FALSE}
 set.seed(5) 
@@ -55,10 +56,10 @@ plot(x = blobs$samples[,1], y = blobs$samples[,2], col = blobs$labels, cex=1, pc
 spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 3, print_graph = TRUE)
 ```
 
-Wyznaczenie klastrów z danych
+Wyznaczenie klastrów z danych:
 
 ```{r echo=FALSE}
-plot(x = blobs$samples[,1], y = blobs$samples[,2], col = spectral_labels, cex=1, pch=16)
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = spectral_labels, cex=1, pch=16,ylab='wyznaczone klastry')
 ```
 
 Ocena jakosci klastryzacji z wykorzystaniem FM:
@@ -68,10 +69,11 @@ dendextend::FM_index(blobs$labels, spectral_labels)
 ```
 
 
-Test dla nastepujacych danych:
+Test dla następujacych danych:
 
 - liczba próbek 100
 - liczba klastrów 4
+- liczba najbliższych sąsiadów 3
 
 ```{r echo=FALSE}
 set.seed(5) 
@@ -103,12 +105,12 @@ spectral_labels <-  spectral_clustering(X = blobs$samples, k = n_centers, M = 3,
 Wyznaczenie nowych klastrów:
 
 ```{r echo=FALSE}
-plot(x = blobs$samples[,1], y = blobs$samples[,2], col = spectral_labels, cex=1, pch=16)
+plot(x = blobs$samples[,1], y = blobs$samples[,2], col = spectral_labels, cex=1, pch=16, ylab='wyznaczone klastry')
 ```
 
-Jak widac na powyższym rysunku, nie zostal dokladnie odwzorowany poczatkowy podzial na klastry. Duzy wplyw na podzial danych ma losowy wybór nowych krawedzi przy uspójnianiu grafu. Bledy pojawiaja sie w miejscach, gdzie byly dodane nowe krawedzie.
+Jak pokazane na powyższym rysunku, nie został dokładnie odwzorowany początkowy podział na klastry. Duży wpływ na podział danych ma losowy wybór nowych krawędzi przy uspójnianiu grafu. Błędy pojawiają się w miejscach, gdzie były dodane nowe krawędzie.
 
-Ocena jakosci klastryzacji z wykorzystaniem FM:
+Ocena jakości klasteryzacji z wykorzystaniem FM:
 
 ```{r echo=FALSE}
 dendextend::FM_index(blobs$labels, spectral_labels)
@@ -116,10 +118,11 @@ dendextend::FM_index(blobs$labels, spectral_labels)
 
 ### Testy danych 3-wymiarowych
 
-Test dla nastepujacych danych:
+Test dla następujacych danych:
 
 - 200 próbek
 - 10 klastrów
+- liczba najbliższych sąsiadów 3
 
 ```{r echo=FALSE}
 set.seed(5) 
@@ -135,6 +138,8 @@ if (n_features == 3){
 }
 ```
 
+Wyznaczenie nowych klastrów:
+
 ```{r echo=FALSE}
 set.seed(5) 
 
@@ -148,17 +153,17 @@ if (n_features == 3){
 }
 ```
 
-Ocena jakosci klastryzacji z wykorzystaniem FM:
+Ocena jakości klasteryzacji z wykorzystaniem FM:
 
 ```{r echo=FALSE}
 dendextend::FM_index(blobs$labels, spectral_labels)
 ```
 
-Testy dla nastepujacych danych:
+Testy dla następujących danych:
 
 - 1000 próbek
 - 3 klastry
-- 10 najbliższych sasiadów
+- 10 najbliższych sąsiadów
 
 ``` {r echo=FALSE}
 source('spectral.R')
@@ -192,7 +197,7 @@ if (n_features == 3){
 }
 ```
 
-Ocena jakosci klastryzacji z wykorzystaniem FM:
+Ocena jakości klasteryzacji z wykorzystaniem FM:
 
 ```{r echo=FALSE}
 dendextend::FM_index(blobs$labels, spectral_labels)

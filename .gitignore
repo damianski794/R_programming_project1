@@ -42,4 +42,5 @@ vignettes/*.pdf
 .Rproj
 
 przykladowe_dane_seed_5_centers_3_features_2.txt
+spirale.R
 
